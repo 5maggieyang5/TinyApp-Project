@@ -1,10 +1,11 @@
-var express = require("express");
-var app = express();
-var PORT = 8080; // default port 8080
-const bodyParser = require("body-parser");
+var express      = require("express");
+var app          = express();
+var PORT         = 8080; // default port 8080
+var bodyParser   = require("body-parser");
+var cookieParser = require('cookie-parser');
 
+app.use(cookieParser());
 app.use(bodyParser.urlencoded({extended: true}));
-
 app.set("view engine", "ejs");
 
 function generateRandomString() {
