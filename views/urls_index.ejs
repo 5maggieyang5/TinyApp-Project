@@ -18,11 +18,14 @@
       <form method="POST" action="/urls/<%=url%>/delete">
           <button type="submit">DELETE</button>
       </form>
+       <form method="GET" action="/urls/<%=url%>/update">
+          <button type="submit">UPDATE</button>
+      </form>
 
     <% } %>
   </ul>
 
-  <a href="#">A link for shortening a new URL</a>
+  <a href="urls/new">A link for shortening a new URL</a>
 
 </body>
 
