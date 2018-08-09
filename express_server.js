@@ -1,8 +1,13 @@
-var express      = require("express");
-var app          = express();
-var PORT         = 8080; // default port 8080
-var bodyParser   = require("body-parser");
-var cookieParser = require('cookie-parser');
+const express      = require("express");
+const app          = express();
+const PORT         = 8080; // default port 8080
+const bodyParser   = require("body-parser");
+const cookieParser = require('cookie-parser');
+const users        = [];
+const urlDatabase  = {
+  "b2xVn2": "http://www.lighthouselabs.ca",
+  "9sm5xK": "http://www.google.com"
+};
 
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({extended: true}));
@@ -17,11 +22,6 @@ function generateRandomString() {
   }
   return myURL;
 }
-
-var urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
-};
 
 app.get("/", (req, res) => {
   res.end("Hello!");
@@ -72,6 +72,16 @@ app.post("/urls/:id/delete", (req, res) => {
 app.get("/urls/:id/update", (req, res) => {
   res.redirect("/urls/" + req.params.id);
   })
+
+
+app.post("/login", (req, res) => {
+  const {username} = req.body;
+  const user = {username: username};
+  users.push(user);
+  console.log(users);
+  res.cookie("username", user.username);
+  res.redirect("/urls");
+})
 
 app.post("/urls/:id/update", (req, res) => {
   console.log(urlDatabase[req.params.id]);
