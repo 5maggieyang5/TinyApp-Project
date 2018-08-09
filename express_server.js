@@ -76,7 +76,7 @@ app.post("/urls/:id/update", (req, res) => {
   console.log(urlDatabase[req.params.id]);
   console.log(req.body);
   urlDatabase[req.params.id] = "http://" + req.body.longURL;
-  res.redirect("/urls");
+  res.redirect("/urls/" + req.params.id);
 });
 
 app.listen(PORT, () => {
