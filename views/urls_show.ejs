@@ -10,11 +10,16 @@
 <body>
     <!-- Add your EJS code here -->
 
-    <% include ./partials/_header %>
+  <% include ./partials/_header %>
 
 
-    <p><%= shortURL %></p>
-    <p><%= longURL %></p>
+  <p><%= shortURL %></p>
+  <p><%= longURL %></p>
+
+  <form method="POST" action="/urls/<%= shortURL %>/update">
+    <input id="longURL" type="text" name="longURL" placeholder="http://" style="width: 300px">
+    <button type="submit">UPDATE</button>
+  </form>
 
 </body>
 
