@@ -16,8 +16,8 @@
       <li><%=`${url}:`%> <a href="<%=`${urls[url]}`%>"><%=`${urls[url]}`%></a></li>
 
       <form method="POST" action="/urls/<%=url%>/delete">
-          <a href="/urls/<%=url%>/update">Edit</a>
           <button type="submit">Delete</button>
+          <input type="submit" name="edit" value="Edit" formaction="/urls/<%= url%>" formmethod="GET">
       </form>
 
     <% } %>

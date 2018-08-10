@@ -3,11 +3,24 @@ const app          = express();
 const PORT         = process.env.PORT || 8080; // default port 8080
 const bodyParser   = require("body-parser");
 const cookieParser = require('cookie-parser');
-const users        = [];
+
 const urlDatabase  = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
+
+const users = {
+  "userRandomID": {
+    id: "userRandomID",
+    email: "user@example.com",
+    password: "purple-monkey-dinosaur"
+  },
+  "user2RandomID": {
+    id: "user2RandomID",
+    email: "user2@example.com",
+    password: "dishwasher-funk"
+  }
+}
 
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({extended: true}));
@@ -21,6 +34,14 @@ function generateRandomString() {
     myURL += myData[indexOfMyURL];
   }
   return myURL;
+}
+
+function checkUser(users, email) {
+  for (var user in users) {
+    if (email === users[user].email) {
+      return true;
+    }
+  }
 }
 
 app.get("/", (req, res) => {
@@ -40,6 +61,30 @@ app.get("/urls", (req, res) => {
     username: req.cookies["username"],
     urls: urlDatabase };
   res.render("urls_index", templateVars);
+});
+
+// GET, /register - Register Form
+app.get("/register", (req, res) => {
+  res.render("register_form");
+});
+
+// POST, /register - Process registration
+app.post("/register", (req, res) => {
+  const {email, password} = req.body;
+  if (email === "" || password === "") {
+    res.sendStatus(400);
+  } else if (checkUser(users, email)){
+    res.sendStatus(400);
+  } else {
+    var userRandomID = generateRandomString();
+    users[userRandomID] = {
+      id: userRandomID,
+      email: email,
+      password: password
+    };
+    res.cookie("new_user", userRandomID);
+    res.redirect("/urls");
+  }
 });
 
 app.get("/urls/new", (req, res) => {
@@ -66,7 +111,6 @@ app.get("/urls/:id/update", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
-  console.log(req.body);
   let newURL = generateRandomString();
   urlDatabase[newURL] = "http://" + req.body.longURL;
   res.redirect("/urls");
@@ -74,10 +118,7 @@ app.post("/urls", (req, res) => {
 
 app.post("/login", (req, res) => {
   const {username} = req.body;
-  const user = {username: username};
-  users.push(user);
-  console.log(users);
-  res.cookie("username", user.username);
+  res.cookie("username", username);
   res.redirect("/urls");
 });
 
@@ -92,8 +133,8 @@ app.post("/urls/:id/delete", (req, res) => {
 });
 
 app.post("/urls/:id/update", (req, res) => {
-  console.log(urlDatabase[req.params.id]);
-  console.log(req.body);
+/*  console.log(urlDatabase[req.params.id]);
+  console.log(req.body);*/
   urlDatabase[req.params.id] = "http://" + req.body.longURL;
   res.redirect("/urls/" + req.params.id);
 });
