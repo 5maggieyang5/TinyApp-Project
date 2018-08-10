@@ -1,12 +1,25 @@
 <header>
-  <h1>
-    Welcome <%= username ? `${username}` : ''%>!
-  </h1>
 
-  <form method="POST" action="/login">
-    <input id="username" type="text" name="username" placeholder="Enter a username" style="width: 300px">
-    <button type="submit">Login</button>
-  </form>
+ <% if (username){ %>
+    <h1>
+      Welcome <%=`${username}`%>!
+    </h1>
+
+    <form method="POST" action="/logout">
+      <button type="submit">Logout</button>
+    </form>
+
+ <% }else{ %>
+    <h1>
+      Welcome!
+    </h1>
+
+    <form method="POST" action="/login">
+      <input id="username" type="text" name="username" placeholder="Enter a username" style="width: 300px">
+      <button type="submit">Login</button>
+    </form>
+
+ <% } %>
 
 </header>
 

@@ -1,6 +1,6 @@
 const express      = require("express");
 const app          = express();
-const PORT         = 8080; // default port 8080
+const PORT         = process.env.PORT || 8080; // default port 8080
 const bodyParser   = require("body-parser");
 const cookieParser = require('cookie-parser');
 const users        = [];
@@ -78,6 +78,11 @@ app.post("/login", (req, res) => {
   users.push(user);
   console.log(users);
   res.cookie("username", user.username);
+  res.redirect("/urls");
+});
+
+app.post("/logout", (req, res) => {
+  res.clearCookie("username");
   res.redirect("/urls");
 });
 
