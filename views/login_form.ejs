@@ -9,12 +9,12 @@
 
 <body>
 
-  <h1>Please Register:</h1>
+  <h1>Please Login:</h1>
 
-  <form method="POST" action="/register">
+  <form method="POST" action="/login">
     <div>
       <label for="email">Email:</label>
-      <input id="email" type="email" name="email" placeholder="Your email" style="width: 300px">
+      <input id="user_email" type="email" name="user_email" placeholder="Your email" style="width: 300px">
     </div>
 
     <div>
@@ -23,15 +23,14 @@
     </div>
 
     <div>
-      <button type="submit">Register</button>
+      <button type="submit">Login</button>
     </div>
 
     <div>
-      Already have an account? Click <a href="/login">HERE</a> to Login!
+      Do not have an account yet? Click <a href="/register">HERE</a> to Register!
     </div>
   </form>
 
 </body>
 
 </html>
-
