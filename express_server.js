@@ -44,6 +44,16 @@ function checkUser(users, email) {
   }
 }
 
+function getUserIDbyEmail(userEmail){
+  let thisUser;
+  for(var user in users){
+    if(users[user].email === userEmail){
+      thisUser = users[user].id;
+    }
+  }
+  return thisUser;
+}
+
 app.get("/", (req, res) => {
   res.end("Hello!");
 });
@@ -58,7 +68,7 @@ app.get("/urls.json", (req, res) => {
 
 app.get("/urls", (req, res) => {
   let templateVars = {
-    username: req.cookies["user_id"],
+    user: users[req.cookies["user_id"]],
     urls: urlDatabase };
   res.render("urls_index", templateVars);
 });
@@ -89,13 +99,14 @@ app.post("/register", (req, res) => {
 
 app.get("/urls/new", (req, res) => {
   let templateVars = {
-    username: req.cookies["user_id"]};
+    user: users[req.cookies["user_id"]]
+  };
   res.render("urls_new", templateVars);
 });
 
 app.get("/urls/:id", (req, res) => {
   let templateVars = {
-    username: req.cookies["user_id"],
+    user: users[req.cookies["user_id"]],
     shortURL: req.params.id,
     longURL: urlDatabase[req.params.id] };
   res.render("urls_show", templateVars);
@@ -118,7 +129,9 @@ app.post("/urls", (req, res) => {
 
 app.post("/login", (req, res) => {
   const {username} = req.body;
-  res.cookie("user_id", username);
+  let thisUserId = getUserIDbyEmail(username);
+  console.log(thisUserId);
+  res.cookie("user_id", getUserIDbyEmail(username));
   res.redirect("/urls");
 });
 
