@@ -11,22 +11,28 @@ app.set("view engine", "ejs");
 /*----------------------Database--------------------*/
 
 const urlDatabase  = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  "b2xVn2": {
+    longURL: "http://www.lighthouselabs.ca",
+    userID: "user1_RandomID"
+  },
+  "9sm5xK": {
+    longURL: "http://www.google.com",
+    userID: "user2_RandomID"
+  }
 };
 
 const users = {
-  "userRandomID": {
-    id: "userRandomID",
-    email: "user@example.com",
+  "user1_RandomID": {
+    id: "user1_RandomID",
+    email: "user1@example.com",
     password: "purple-monkey-dinosaur"
   },
-  "user2RandomID": {
-    id: "user2RandomID",
+  "user2_RandomID": {
+    id: "user2_RandomID",
     email: "user2@example.com",
     password: "dishwasher-funk"
   }
-}
+};
 
 /*-----------------Helper Function-------------------*/
 
@@ -69,6 +75,7 @@ function getUserPasswordByEmail(email) {
     }
   }
 }
+
 /*-----------------Routes-------------------*/
 
 /*app.get("/", (req, res) => {
@@ -114,14 +121,12 @@ app.get("/urls/:id", (req, res) => {
   let templateVars = {
     user: users[req.cookies["user_id"]],
     shortURL: req.params.id,
-    longURL: urlDatabase[req.params.id] };
-  res.render("urls_show", templateVars);
-});
-
-//GET, /u/:id - take user to the longURL address by provide shortURL
-app.get("/u/:id", (req, res) => {
-  let longURL = urlDatabase[req.params.id];
-  res.redirect(longURL);
+    longURL: urlDatabase[req.params.id].longURL};
+  if (req.cookies["user_id"] === urlDatabase[req.params.id].userID){
+    res.render("urls_show", templateVars);
+  } else {
+    res.sendStatus(403);
+  }
 });
 
 //GET, /urls/:id/update - redirect client back to the Edit LongURL form
@@ -129,13 +134,33 @@ app.get("/urls/:id/update", (req, res) => {
   res.redirect("/urls/" + req.params.id);
 });
 
-//POST,
-app.post("/urls", (req, res) => {
-  let newURL = generateRandomString();
-  urlDatabase[newURL] = "http://" + req.body.longURL;
-  res.redirect("/urls");
+//GET, /u/:id - take user to the longURL address by provide shortURL
+app.get("/u/:id", (req, res) => {
+  let longURL = urlDatabase[req.params.id].longURL;
+  res.redirect(longURL);
 });
 
+// POST, /register - Process registration after user registered
+app.post("/register", (req, res) => {
+  const {email, password} = req.body;
+  if (email === "" || password === "") {
+    res.sendStatus(400); //error if didn't provide email or password
+  } else if (checkUser(email)){
+    res.sendStatus(400); //error if provided an existing user
+  } else {
+    console.log(" Users List before addition : ", users);
+    var userRandomID = generateRandomString();
+    users[userRandomID] = {
+      id: userRandomID,
+      email: email,
+      password: password
+    };
+    console.log(" Users List after addition : ", users);
+    res.redirect("/login"); //take user back to main page
+  }
+});
+
+// POST, /login - Process login after user loged in
 app.post("/login", (req, res) => {
   const {user_email, password} = req.body;
   if (checkUser(user_email)) {
@@ -150,38 +175,42 @@ app.post("/login", (req, res) => {
   }
 });
 
+// POST, /logout - Process logout after user loged out
 app.post("/logout", (req, res) => {
   res.clearCookie("user_id");
   res.redirect("/urls");
 });
 
-// POST, /register - Process registration after user registered
-app.post("/register", (req, res) => {
-  const {email, password} = req.body;
-  if (email === "" || password === "") {
-    res.sendStatus(400); //error if didn't provide email or password
-  } else if (checkUser(email)){
-    res.sendStatus(400); //error if provided an existing user
-  } else {
-    var userRandomID = generateRandomString();
-    users[userRandomID] = {
-      id: userRandomID,
-      email: email,
-      password: password
-    };
-    res.cookie("user_id", userRandomID); //set the new user-ID cookie
-    res.redirect("/urls"); //take user back to main page
+//POST, /urls/new - process user shortening a new URL
+app.post("/urls/new", (req, res) => {
+  let newURL = generateRandomString();
+  let user_id = req.cookies["user_id"];
+  console.log("before put newURL: ", urlDatabase);
+  urlDatabase[newURL] = {
+    longURL: "http://" + req.body.longURL,
+    userID: user_id
   }
-});
-
-app.post("/urls/:id/delete", (req, res) => {
-  delete urlDatabase[req.params.id];
+  console.log("after put newURL: ", urlDatabase);
   res.redirect("/urls");
 });
 
+//POST, /urls/:id/update - process user edited longURL
 app.post("/urls/:id/update", (req, res) => {
-  urlDatabase[req.params.id] = "http://" + req.body.longURL;
-  res.redirect("/urls/" + req.params.id);
+  urlDatabase[req.params.id] = {
+    longURL: "http://" + req.body.longURL,
+    userID: req.cookies["user_id"]
+  }
+  res.redirect("/urls");
+});
+
+//POST, /urls/:id/delete - process delete a URL
+app.post("/urls/:id/delete", (req, res) => {
+  if (req.cookies["user_id"] === urlDatabase[req.params.id]["userID"]){
+    delete urlDatabase[req.params.id];
+    res.redirect("/urls");
+  } else {
+    res.sendStatus(403);
+  }
 });
 
 app.listen(PORT, () => {
