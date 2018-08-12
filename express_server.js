@@ -76,6 +76,17 @@ function getUserPasswordByEmail(email) {
   }
 }
 
+//only display urls that belongs to the creator of urls
+function urlsForUser(id) {
+  var urlForThisUser = {};
+  for (var url in urlDatabase) {
+    if (id === urlDatabase[url].userID) {
+      urlForThisUser[url] = urlDatabase[url];
+    }
+  }
+  return urlForThisUser;
+}
+
 /*-----------------Routes-------------------*/
 
 /*app.get("/", (req, res) => {
@@ -94,7 +105,7 @@ app.get("/urls.json", (req, res) => {
 app.get("/urls", (req, res) => {
   let templateVars = {
     user: users[req.cookies["user_id"]],  //this gives a specific user's id/email/password
-    urls: urlDatabase };
+    urls: urlsForUser(req.cookies["user_id"])};
   res.render("urls_index", templateVars);
 });
 
@@ -125,7 +136,7 @@ app.get("/urls/:id", (req, res) => {
   if (req.cookies["user_id"] === urlDatabase[req.params.id].userID){
     res.render("urls_show", templateVars);
   } else {
-    res.sendStatus(403);
+    res.send("Sorry, you are not authorized to check this URL. Please kindly check if you have loged in or if the URL created by you, thanks.");
   }
 });
 

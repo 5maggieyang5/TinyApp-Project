@@ -9,6 +9,8 @@
 
 <body>
 
+<% if (user){ %>
+
   <% include ./partials/_header %>
 
     <ul>
@@ -22,6 +24,11 @@
       <% } %>
     </ul>
 
+<% }else{ %>
+
+    <% include ./partials/_header %>
+
+<% } %>
 
   <a href="urls/new">Shortening a new URL</a>
 
