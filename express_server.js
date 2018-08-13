@@ -4,13 +4,10 @@ const PORT          = process.env.PORT || 8080; // default port 8080
 const bodyParser    = require("body-parser");
 const cookieSession = require('cookie-session');
 const bcrypt        = require('bcryptjs');
-/*const cookieParser = require('cookie-parser');*/
 
-/*app.use(cookieParser());*/
 app.use(cookieSession({
-  keys: ["mysupersecretcookie"]
+  keys: ["Encrypted Cookie"]
 }));
-
 app.use(bodyParser.urlencoded({extended: true}));
 app.set("view engine", "ejs");
 
@@ -31,16 +28,16 @@ const users = {
   "user1_RandomID": {
     id: "user1_RandomID",
     email: "user1@example.com",
-    password: bcrypt.hashSync("purple-monkey-dinosaur", 10)
+    password: bcrypt.hashSync("123", 10)
   },
   "user2_RandomID": {
     id: "user2_RandomID",
     email: "user2@example.com",
-    password: bcrypt.hashSync("dishwasher-funk", 10)
+    password: bcrypt.hashSync("123", 10)
   }
 };
 
-/*-----------------Helper Function-------------------*/
+/*-----------------Helper Functions-------------------*/
 
 //Generate ShortURL & User ID
 function generateRandomString() {
@@ -62,7 +59,7 @@ function checkUser(email) {
   }
 }
 
-//If the user provide user_email, use the email to get user_id
+//Use user email to get user_id
 function getUserIDbyEmail(userEmail){
   let thisUser;
   for(var user in users){
@@ -73,7 +70,7 @@ function getUserIDbyEmail(userEmail){
   return thisUser;
 }
 
-//If the user provide user_email, use the email to get user_password
+//Use user email to get user_password
 function getUserPasswordByEmail(email) {
   for (var user in users) {
     if (email === users[user].email) {
@@ -82,7 +79,7 @@ function getUserPasswordByEmail(email) {
   }
 }
 
-//only display urls that belongs to the creator of urls
+//Use user_id to find the urls that created by this user
 function urlsForUser(id) {
   var urlForThisUser = {};
   for (var url in urlDatabase) {
@@ -95,8 +92,13 @@ function urlsForUser(id) {
 
 /*-----------------Routes-------------------*/
 
-/*app.get("/", (req, res) => {
-  res.end("Hello!");
+//GET, /
+app.get("/", (req, res) => {
+  if (req.session.user_id) {
+    res.redirect("/urls");
+  } else {
+    res.redirect("/login");
+  }
 });
 
 app.get("/hello", (req, res) => {
@@ -105,7 +107,7 @@ app.get("/hello", (req, res) => {
 
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
-});*/
+});
 
 // GET, /urls - Main Page
 app.get("/urls", (req, res) => {
@@ -130,7 +132,11 @@ app.get("/urls/new", (req, res) => {
   let templateVars = {
     user: users[req.session.user_id]
   };
-  res.render("urls_new", templateVars);
+  if (req.session.user_id) {
+    res.render("urls_new", templateVars);
+  } else {
+    res.redirect("/login");
+  }
 });
 
 //GET, /urls/:id - the Edit LongURL form
@@ -166,22 +172,20 @@ app.post("/register", (req, res) => {
   } else if (checkUser(email)){
     res.sendStatus(400); //error if provided an existing user
   } else {
-    console.log(" Users List before addition : ", users);
     var userRandomID = generateRandomString();
     users[userRandomID] = {
       id: userRandomID,
       email: email,
       password: hashedPassword
     };
-    console.log(" Users List after addition : ", users);
-    res.redirect("/login"); //take user back to main page
+    req.session.user_id = getUserIDbyEmail(email);
+    res.redirect("/urls");
   }
 });
 
 // POST, /login - Process login after user loged in
 app.post("/login", (req, res) => {
   const {user_email, password} = req.body;
-  console.log(getUserIDbyEmail(user_email));
   if (checkUser(user_email)) {
     if (bcrypt.compareSync(password, getUserPasswordByEmail(user_email))) {
       req.session.user_id = getUserIDbyEmail(user_email);
@@ -204,13 +208,11 @@ app.post("/logout", (req, res) => {
 app.post("/urls/new", (req, res) => {
   let newURL = generateRandomString();
   let user_id = req.session.user_id;
-  console.log("before put newURL: ", urlDatabase);
-  urlDatabase[newURL] = {
-    longURL: "http://" + req.body.longURL,
-    userID: user_id
-  }
-  console.log("after put newURL: ", urlDatabase);
-  res.redirect("/urls");
+    urlDatabase[newURL] = {
+      longURL: "http://" + req.body.longURL,
+      userID: user_id
+    }
+    res.redirect("/urls");
 });
 
 //POST, /urls/:id/update - process user edited longURL

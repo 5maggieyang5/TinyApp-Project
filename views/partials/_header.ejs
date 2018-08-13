@@ -2,7 +2,7 @@
 
  <% if (user){ %>
     <h1>
-      Welcome <%=`${user.email}`%>!
+      Welcome to Shorten URL <%=`${user.email}`%>!
     </h1>
 
     <form method="POST" action="/logout">
@@ -11,7 +11,7 @@
 
  <% }else{ %>
     <h1>
-      Welcome!
+      Welcome to Shorten URL!
     </h1>
 
       <a href="/register">Register</a>

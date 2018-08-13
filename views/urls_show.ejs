@@ -3,7 +3,7 @@
 <html lang="en">
 
 <head>
-  <title>TinyApp</title>
+  <title>TinyApp-Update_URLs</title>
 </head>
 
 
@@ -12,13 +12,17 @@
   <% include ./partials/_header %>
 
 
-  <p><%= shortURL %></p>
-  <p><%= longURL %></p>
+  <p><b>The shortURL: </b><%= shortURL %></p>
+  <p><b>The longURL: </b><%= longURL %></p>
 
   <form method="POST" action="/urls/<%= shortURL %>/update">
     <input id="longURL" type="text" name="longURL" placeholder="http://" style="width: 300px">
     <button type="submit">Edit The LongURL</button>
   </form>
+
+  <div>
+    Click <a href="/urls">HERE</a> to back to home page!
+  </div>
 
 </body>
 
